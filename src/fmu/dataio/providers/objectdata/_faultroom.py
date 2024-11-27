@@ -7,8 +7,9 @@ from fmu.dataio._definitions import ExportFolder, ValidFormats
 from fmu.dataio._logging import null_logger
 from fmu.dataio._model.data import BoundingBox3D
 from fmu.dataio._model.enums import FMUClass, Layout
+from fmu.dataio._model.global_configuration import GlobalConfiguration  # TODO: OK to import?
 from fmu.dataio._model.specification import FaultRoomSurfaceSpecification
-from fmu.dataio.readers import FaultRoomSurface
+from fmu.dataio.readers import FaultRoomSurface     # Same as below, but without TYPE_CHECKING
 
 from ._base import (
     ObjectDataProvider,
@@ -63,14 +64,43 @@ class FaultRoomSurfaceProvider(ObjectDataProvider):
             zmax=float(self.obj.bbox["zmax"]),
         )
 
+    # TODO: to be renamed
+    def ecs_get_stratigraphic_name(self, name: str) -> str:
+        # @ecs: see _base.py:183
+
+        if (
+            isinstance(self.dataio.config, GlobalConfiguration)
+            and (strat := self.dataio.config.stratigraphy)
+            # and (name := self.obj.name)
+            # TODO: self.obj.name is a combo of horizon names, not a single name.
+            # Should it be changed? Or make a new variable?
+            and name in strat
+        ):
+            return strat[name].name
+
+        # TODO: "strat" contains no aliases (comes from edataobj2). Should be added?
+        # return ["Therys Fm.", "Valysar Fm.", "Volon Fm."]
+        assert False, f"Stratigraphic name not found for {name}"
+        return None
+
+
     def get_spec(self) -> FaultRoomSurfaceSpecification:
         """Derive data.spec for FaultRoomSurface"""
         logger.info("Get spec for FaultRoomSurface")
-        return FaultRoomSurfaceSpecification(
-            horizons=self.obj.horizons,
-            faults=self.obj.faults,
-            juxtaposition_hw=self.obj.juxtaposition_hw,
-            juxtaposition_fw=self.obj.juxtaposition_fw,
-            properties=self.obj.properties,
-            name=self.obj.name,
+
+        juxtaposition_hw = []
+        for strat_juxt_element in self.obj.juxtaposition_hw:
+            juxtaposition_hw.append(self.ecs_get_stratigraphic_name(strat_juxt_element))
+        juxtaposition_fw = []
+        for strat_juxt_element in self.obj.juxtaposition_fw:
+            juxtaposition_fw.append(self.ecs_get_stratigraphic_name(strat_juxt_element))
+
+        frss = FaultRoomSurfaceSpecification(
+            horizons = self.obj.horizons,
+            faults = self.obj.faults,
+            juxtaposition_hw = juxtaposition_hw,
+            juxtaposition_fw = juxtaposition_fw,
+            properties = self.obj.properties,
+            name = self.obj.name,
         )
+        return frss

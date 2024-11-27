@@ -12,6 +12,8 @@ from fmu.dataio.providers.objectdata._provider import (
     objectdata_provider_factory,
 )
 from fmu.dataio.providers.objectdata._xtgeo import RegularSurfaceDataProvider
+from fmu.dataio.providers.objectdata._faultroom import FaultRoomSurfaceProvider
+from fmu.dataio._model.specification import FaultRoomSurfaceSpecification
 
 from ..conftest import remove_ert_env, set_ert_env_prehook
 from ..utils import inside_rms
@@ -23,7 +25,7 @@ from ..utils import inside_rms
 
 def test_objectdata_regularsurface_derive_named_stratigraphy(regsurf, edataobj1):
     """Get name and some stratigaphic keys for a valid RegularSurface object ."""
-    # mimic the stripped parts of configuations for testing here
+    # mimic the stripped parts of configurations for testing here
     objdata = objectdata_provider_factory(regsurf, edataobj1)
 
     res = objdata._get_stratigraphy_element()
@@ -35,7 +37,7 @@ def test_objectdata_regularsurface_derive_named_stratigraphy(regsurf, edataobj1)
 
 def test_objectdata_regularsurface_get_stratigraphy_element_differ(regsurf, edataobj2):
     """Get name and some stratigaphic keys for a valid RegularSurface object ."""
-    # mimic the stripped parts of configuations for testing here
+    # mimic the stripped parts of configurations for testing here
     objdata = objectdata_provider_factory(regsurf, edataobj2)
 
     res = objdata._get_stratigraphy_element()
@@ -43,6 +45,32 @@ def test_objectdata_regularsurface_get_stratigraphy_element_differ(regsurf, edat
     assert res.name == "VOLANTIS GP. Top"
     assert "TopVolantis" in res.alias
     assert res.stratigraphic is True
+
+
+def test_objectdata_faultroom_fault_juxtaposition_get_stratigraphy_elements_differ(
+        faultroom_object, edataobj2):
+    """
+    Fault juxtaposition is a list of formations on the footwall and hangingwall sides.
+    Ensure that each name is converted to the official SMDA names.
+    """
+    objdata = objectdata_provider_factory(faultroom_object, edataobj2)
+    assert isinstance(objdata, FaultRoomSurfaceProvider)
+
+    frss = objdata.get_spec()
+    assert isinstance(frss, FaultRoomSurfaceSpecification)
+
+    assert frss.juxtaposition_fw[0] == "Therys Fm."
+    assert frss.juxtaposition_fw[1] == "Valysar Fm."
+    assert frss.juxtaposition_fw[2] == "Volon Fm."
+    assert frss.juxtaposition_hw[0] == "Therys Fm."
+    assert frss.juxtaposition_hw[1] == "Valysar Fm."
+    assert frss.juxtaposition_hw[2] == "Volon Fm."
+
+    # res = objdata._get_stratigraphy_element()
+
+    # assert res.name == "VOLANTIS GP. Top"
+    # assert "TopVolantis" in res.alias
+    # assert res.stratigraphic is True
 
 
 def test_objectdata_regularsurface_validate_extension(regsurf, edataobj1):

@@ -18,6 +18,7 @@ from fmu.config import utilities as ut
 from fmu.dataio._model import Root, fields, global_configuration
 from fmu.dataio.dataio import ExportData, read_metadata
 from fmu.dataio.providers._fmu import FmuEnv
+from fmu.dataio.readers import FaultRoomSurface
 
 from .utils import _get_nested_pydantic_models, _metadata_examples
 
@@ -458,6 +459,47 @@ def fixture_regsurf():
     """Create an xtgeo surface."""
     logger.debug("Ran %s", _current_function_name())
     return xtgeo.RegularSurface(ncol=12, nrow=10, xinc=20, yinc=20, values=1234.0)
+
+
+@pytest.fixture(name="faultroom_object", scope="module")
+def fixture_faultroom_object():
+    """Create a faultroom object."""
+    logger.debug("Ran %s", _current_function_name())
+    # TODO: make complete object?
+    # TODO: I've made this object by copying from
+    # 'tests/data/drogon/rms/output/faultroom/ex_faultroom_1.3.1.json'
+    # Is there a better way to do this?
+    # 
+    # Other examples
+    # From tests/data/drogon/rms/output/faultroom/ex_faultroom_1.3.1.json
+    # fmu-dataio/examples/s/d/nn/xcase/realization-0/iter-0/
+    # fmuconfig/output/global_variables.yml
+    horizons = ["TopVolantis", "TopTherys", "TopVolon", "BaseVolon"]
+    faults = ["F1", "F2", "F3", "F4", "F5", "F6"]
+    juxtaposition_hw = ["Therys", "Valysar", "Volon"]
+    juxtaposition_fw = ["Therys", "Valysar", "Volon"]
+    juxtaposition = {"fw": juxtaposition_fw, "hw": juxtaposition_hw}
+    properties = \
+        ["Juxtaposition", "displacement_avg",
+         "permeability_avg", "transmissibility_avg"]
+    coordinates = [[[1.1, 1.2, 1.3], [2.1, 2.2, 2.3]]]
+    features = [
+        {"geometry": {
+                "coordinates": coordinates}
+        }
+    ]
+    name = "Drogon"
+
+    faultroom_data = {"horizons": horizons,
+                      "faults": {"default": faults},
+                      "juxtaposition": juxtaposition,
+                      "properties": properties,
+                      "name": name}
+
+    return FaultRoomSurface({
+        "metadata": faultroom_data,
+        "features": features
+        })
 
 
 @pytest.fixture(name="polygons", scope="module")
