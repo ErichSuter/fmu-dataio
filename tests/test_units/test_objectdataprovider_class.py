@@ -66,6 +66,7 @@ def test_objectdata_faultroom_fault_juxtaposition_get_stratigraphy_elements_diff
     assert frss.juxtaposition_hw[1] == "Valysar Fm."
     assert frss.juxtaposition_hw[2] == "Volon Fm."
 
+    # TODO: remove commented lines
     # res = objdata._get_stratigraphy_element()
 
     # assert res.name == "VOLANTIS GP. Top"

@@ -64,23 +64,16 @@ class FaultRoomSurfaceProvider(ObjectDataProvider):
             zmax=float(self.obj.bbox["zmax"]),
         )
 
-    # TODO: to be renamed
-    def ecs_get_stratigraphic_name(self, name: str) -> str:
-        # @ecs: see _base.py:183
-
+    def get_stratigraphic_name(self, name: str) -> str:
         if (
             isinstance(self.dataio.config, GlobalConfiguration)
             and (strat := self.dataio.config.stratigraphy)
-            # and (name := self.obj.name)
-            # TODO: self.obj.name is a combo of horizon names, not a single name.
-            # Should it be changed? Or make a new variable?
             and name in strat
         ):
             return strat[name].name
 
-        # TODO: "strat" contains no aliases (comes from edataobj2). Should be added?
-        # return ["Therys Fm.", "Valysar Fm.", "Volon Fm."]
-        assert False, f"Stratigraphic name not found for {name}"
+        assert False, f"Official SMDA stratigraphic name not found for {name}"
+        # TODO: is it OK to return None? Should be an exception?
         return None
 
 
@@ -89,11 +82,11 @@ class FaultRoomSurfaceProvider(ObjectDataProvider):
         logger.info("Get spec for FaultRoomSurface")
 
         juxtaposition_hw = []
-        for strat_juxt_element in self.obj.juxtaposition_hw:
-            juxtaposition_hw.append(self.ecs_get_stratigraphic_name(strat_juxt_element))
+        for juxt_element in self.obj.juxtaposition_hw:
+            juxtaposition_hw.append(self.get_stratigraphic_name(juxt_element))
         juxtaposition_fw = []
-        for strat_juxt_element in self.obj.juxtaposition_fw:
-            juxtaposition_fw.append(self.ecs_get_stratigraphic_name(strat_juxt_element))
+        for juxt_element in self.obj.juxtaposition_fw:
+            juxtaposition_fw.append(self.get_stratigraphic_name(juxt_element))
 
         frss = FaultRoomSurfaceSpecification(
             horizons = self.obj.horizons,

@@ -465,6 +465,11 @@ def fixture_regsurf():
 def fixture_faultroom_object():
     """Create a faultroom object."""
     logger.debug("Ran %s", _current_function_name())
+    # TODO NOW
+    # Import from global_variables.yml instead of hardcoding as below
+    # CFG = utils.yaml_load('../../../../../../../../../testdata/global_variables.yml')
+    # Located here: fmuconfig/output/global_variables.yml
+    #
     # TODO: make complete object?
     # TODO: I've made this object by copying from
     # 'tests/data/drogon/rms/output/faultroom/ex_faultroom_1.3.1.json'
