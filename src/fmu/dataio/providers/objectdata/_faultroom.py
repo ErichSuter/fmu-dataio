@@ -7,9 +7,13 @@ from fmu.dataio._definitions import ExportFolder, ValidFormats
 from fmu.dataio._logging import null_logger
 from fmu.dataio._model.data import BoundingBox3D
 from fmu.dataio._model.enums import FMUClass, Layout
-from fmu.dataio._model.global_configuration import GlobalConfiguration  # TODO: OK to import?
+from fmu.dataio._model.global_configuration import (
+    GlobalConfiguration,
+)  # TODO: OK to import?
 from fmu.dataio._model.specification import FaultRoomSurfaceSpecification
-from fmu.dataio.readers import FaultRoomSurface     # Same as below, but without TYPE_CHECKING
+from fmu.dataio.readers import (
+    FaultRoomSurface,
+)  # Same as below, but without TYPE_CHECKING
 
 from ._base import (
     ObjectDataProvider,
@@ -76,7 +80,6 @@ class FaultRoomSurfaceProvider(ObjectDataProvider):
         # TODO: is it OK to return None? Should be an exception?
         return None
 
-
     def get_spec(self) -> FaultRoomSurfaceSpecification:
         """Derive data.spec for FaultRoomSurface"""
         logger.info("Get spec for FaultRoomSurface")
@@ -88,12 +91,11 @@ class FaultRoomSurfaceProvider(ObjectDataProvider):
         for juxt_element in self.obj.juxtaposition_fw:
             juxtaposition_fw.append(self.get_stratigraphic_name(juxt_element))
 
-        frss = FaultRoomSurfaceSpecification(
-            horizons = self.obj.horizons,
-            faults = self.obj.faults,
-            juxtaposition_hw = juxtaposition_hw,
-            juxtaposition_fw = juxtaposition_fw,
-            properties = self.obj.properties,
-            name = self.obj.name,
+        return FaultRoomSurfaceSpecification(
+            horizons=self.obj.horizons,
+            faults=self.obj.faults,
+            juxtaposition_hw=juxtaposition_hw,
+            juxtaposition_fw=juxtaposition_fw,
+            properties=self.obj.properties,
+            name=self.obj.name,
         )
-        return frss

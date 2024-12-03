@@ -1,5 +1,6 @@
 """The conftest.py, providing magical fixtures to tests."""
 
+from copy import deepcopy
 import inspect
 import json
 import logging
@@ -461,50 +462,85 @@ def fixture_regsurf():
     return xtgeo.RegularSurface(ncol=12, nrow=10, xinc=20, yinc=20, values=1234.0)
 
 
-@pytest.fixture(name="faultroom_object", scope="module")
-def fixture_faultroom_object():
-    """Create a faultroom object."""
+@pytest.fixture(name="faultroom_object_simple", scope="module")
+def fixture_faultroom_object_simple():
+    """Create a simple faultroom object."""
     logger.debug("Ran %s", _current_function_name())
-    # TODO NOW
-    # Import from global_variables.yml instead of hardcoding as below
-    # CFG = utils.yaml_load('../../../../../../../../../testdata/global_variables.yml')
-    # Located here: fmuconfig/output/global_variables.yml
+    # TODO: make a very simple test with TopWhatever?
+    #   This is contained in edataobj1 / globalconfig1
+    #   But it is too simple, doesn't contain any formations
+    #   Could either ignore the simple case, or use globalconfig1 and add info
+    #   (which is not very intuitive), or keep the things beloq
+    #   (maybe add as a new fixture)
     #
-    # TODO: make complete object?
-    # TODO: I've made this object by copying from
-    # 'tests/data/drogon/rms/output/faultroom/ex_faultroom_1.3.1.json'
-    # Is there a better way to do this?
-    # 
-    # Other examples
+    # Examples:
     # From tests/data/drogon/rms/output/faultroom/ex_faultroom_1.3.1.json
     # fmu-dataio/examples/s/d/nn/xcase/realization-0/iter-0/
     # fmuconfig/output/global_variables.yml
     horizons = ["TopVolantis", "TopTherys", "TopVolon", "BaseVolon"]
     faults = ["F1", "F2", "F3", "F4", "F5", "F6"]
-    juxtaposition_hw = ["Therys", "Valysar", "Volon"]
-    juxtaposition_fw = ["Therys", "Valysar", "Volon"]
+    juxtaposition_hw = ["Valysar", "Therys", "Volon"]
+    juxtaposition_fw = ["Valysar", "Therys", "Volon"]
     juxtaposition = {"fw": juxtaposition_fw, "hw": juxtaposition_hw}
-    properties = \
-        ["Juxtaposition", "displacement_avg",
-         "permeability_avg", "transmissibility_avg"]
-    coordinates = [[[1.1, 1.2, 1.3], [2.1, 2.2, 2.3]]]
-    features = [
-        {"geometry": {
-                "coordinates": coordinates}
-        }
+    properties = [
+        "Juxtaposition",
+        "displacement_avg",
+        "permeability_avg",
+        "transmissibility_avg",
     ]
+    coordinates = [[[1.1, 1.2, 1.3], [2.1, 2.2, 2.3]]]
+    features = [{"geometry": {"coordinates": coordinates}}]
     name = "Drogon"
 
-    faultroom_data = {"horizons": horizons,
-                      "faults": {"default": faults},
-                      "juxtaposition": juxtaposition,
-                      "properties": properties,
-                      "name": name}
+    faultroom_data = {
+        "horizons": horizons,
+        "faults": {"default": faults},
+        "juxtaposition": juxtaposition,
+        "properties": properties,
+        "name": name,
+    }
 
-    return FaultRoomSurface({
-        "metadata": faultroom_data,
-        "features": features
-        })
+    return FaultRoomSurface({"metadata": faultroom_data, "features": features})
+
+
+@pytest.fixture(name="faultroom_object", scope="module")
+def fixture_faultroom_object(globalconfig2):
+    """Create a faultroom object."""
+    logger.debug("Ran %s", _current_function_name())
+    # TODO NOW
+    # Import from global_variables.yml instead of hardcoding as below
+    # CFG = ut.yaml_load("../../fmuconfig/output/global_variables.yml")
+    cfg = deepcopy(globalconfig2)
+
+    # TODO: see https://fmu-dataio.readthedocs.io/en/latest/preparations.html
+    # TODO: also see pinned: test_dataio/test_units/test_dataio.py: test_alias_as_none()
+    # Maybe do ExportData in this manner?
+    # Or as shown in https://github.com/equinor/fmu-dataio/issues/724, first line in dataio_faultroom()
+
+    # TODO: Much of the info is not in the config, OK to make up something here?
+    # Or should it be in a new fixture?
+
+    horizons = cfg["rms"]["horizons"]["TOP_RES"]
+    faults = ["F1", "F2", "F3", "F4", "F5", "F6"]
+    juxtaposition_hw = cfg["rms"]["zones"]["ZONE_RES"]
+    juxtaposition_fw = cfg["rms"]["zones"]["ZONE_RES"]
+    juxtaposition = {"fw": juxtaposition_fw, "hw": juxtaposition_hw}
+    properties = [
+        "Juxtaposition",
+    ]
+    coordinates = [[[1.1, 1.2, 1.3], [2.1, 2.2, 2.3]]]
+    features = [{"geometry": {"coordinates": coordinates}}]
+    name = cfg["access"]["asset"]["name"]
+
+    faultroom_data = {
+        "horizons": horizons,
+        "faults": {"default": faults},
+        "juxtaposition": juxtaposition,
+        "properties": properties,
+        "name": name,
+    }
+
+    return FaultRoomSurface({"metadata": faultroom_data, "features": features})
 
 
 @pytest.fixture(name="polygons", scope="module")
