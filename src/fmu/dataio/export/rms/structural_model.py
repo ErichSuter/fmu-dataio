@@ -86,10 +86,8 @@ _RENAME_COLUMNS_FROM_RMS: Final = {
 
 
 @dataclass
-class _ExportStructuralModelTriangulationsRMS:
+class _ExportTriangulationsRMS:
     project: Any
-    grid_name: str  # TODO
-    volume_job_name: str    # TODO
 
     def __post_init__(self) -> None:
         _logger.debug("Process data, establish state prior to export.")
@@ -97,13 +95,16 @@ class _ExportStructuralModelTriangulationsRMS:
         self._volume_job = self._get_rms_volume_job_settings()
         self._volume_table_name = self._read_volume_table_name_from_job()
         self._dataframe = self._get_table_with_volumes()
+
+        # TODO self._triangulation_dataframes = self.get_the_triangulations()
+
         _logger.debug("Process data... DONE")
 
-    # TODO: export of structural model triangulations is not a product today
-    @property
-    def _product(self) -> product.InplaceVolumesProduct:
-        """Product type for the exported data."""
-        return product.InplaceVolumesProduct(name=ProductName.inplace_volumes)
+    # # TODO: export of structural model triangulations is not a product right now
+    # @property
+    # def _product(self) -> product.InplaceVolumesProduct:
+    #     """Product type for the exported data."""
+    #     return product.InplaceVolumesProduct(name=ProductName.inplace_volumes)
 
     @property
     def _classification(self) -> Classification:
@@ -111,15 +112,14 @@ class _ExportStructuralModelTriangulationsRMS:
         return Classification.restricted
 
     # TODO: allows selection of structural model surfaces
-    def _export_structural_model_as_triangulations_from_rms(self) -> pd.DataFrame:
+    def _export_structural_model_as_triangulations_RMS(self) -> pd.DataFrame:
         """Fetch triangulations from RMS and convert to pandas dataframe"""
         _logger.debug("Read all structural surfaces as triangulations, ")
         _logger.debug("   and convert to pandas dataframes")
 
-        import fmu.dataio as dataio
         import xtgeo
-        from fmu.config import utilities as utils
-        import pandas as pd
+        # from fmu.config import utilities as utils
+        # import pandas as pd
 
         # TODO: use rmsapi
         # PRJ = project
@@ -128,16 +128,17 @@ class _ExportStructuralModelTriangulationsRMS:
 
         # TODO: use rmsapi to get list of faults
         fault_names = ["F1", "F2", "F3", "F4", "F5", "F6"]
+        fault_names = ["F1"]
 
         # TODO: dataio.ExportData() is the old method.
         # Use my own version of export_inplace_volumes (in inplace_volumes.py)
-        edata = dataio.ExportData(
-                config=CFG,
-                content="depth",
-                unit="m",
-                vertical_domain={"depth": "msl"},
-                workflow="rms structural model",
-            )
+        # edata = dataio.ExportData(
+        #         config=CFG,
+        #         content="depth",
+        #         unit="m",
+        #         vertical_domain={"depth": "msl"},
+        #         workflow="rms structural model",
+        #     )
 
         # TODO: different tagname
         tagname = "tagname"
@@ -145,9 +146,10 @@ class _ExportStructuralModelTriangulationsRMS:
 
         for fault_name in fault_names:
 
-            # TODO: use "with" something
-            triang = project.structural_models["DepthModel"].fault_model.get_fault_triangle_surface(fault_name, realization)
-            #print("Fault surface vertices:", triang.get_vertices())
+            # TODO: make function to get the data, and function to insert into df
+            triang = self.project.structural_models["DepthModel"].fault_model.get_fault_triangle_surface(fault_name, realization)
+            print("Fault surface vertices:", triang.get_vertices())
+            exit()
             #print("Fault surface triangles:", triang.get_triangles())
 
             xtgeo_obj = xtgeo.points_from_roxar(
@@ -451,22 +453,20 @@ class _ExportStructuralModelTriangulationsRMS:
 
     def export(self) -> ExportResult:
         """Validate and export the volume table."""
+        # Validation needed because the job may be incorrectly defined by user.
         self._validate_table()
+        # TODO: find out how point sets or general dataframes are exported
         return self._export_volume_table()
 
 
 @experimental
-def export_inplace_volumes(
-    project: Any,
-    grid_name: str,
-    volume_job_name: str,
-) -> ExportResult:
-    """Simplified interface when exporting volume tables (and assosiated data) from RMS.
+def export_triangulations(project: Any) -> ExportResult:
+    """Simplified interface when exporting structural model as triangulations from RMS.
 
     Args:
         project: The 'magic' project variable in RMS.
-        grid_name: Name of 3D grid model in RMS.
-        volume_job_name: Name of the volume job.
+        # Maybe TODO: which structural model
+        # TODO: list of surfaces
 
     Note:
         This function is experimental and may change in future versions.
@@ -474,21 +474,41 @@ def export_inplace_volumes(
 
     check_rmsapi_version(minimum_version="1.7")
 
-    return _ExportVolumetricsRMS(
-        project,
-        grid_name,
-        volume_job_name,
-    ).export()
+    return _ExportTriangulationsRMS(project).export()
 
 
-# keep the old name for now but not log (will be removed soon as we expect close to
-# zero usage so far)
-def export_rms_volumetrics(*args, **kwargs) -> ExportResult:  # type: ignore
-    """Deprecated function. Use export_inplace_volumes instead."""
-    warnings.warn(
-        "export_rms_volumetrics is deprecated and will be removed in a future release. "
-        "Use export_inplace_volumes instead.",
-        FutureWarning,
-        stacklevel=2,
-    )
-    return export_inplace_volumes(*args, **kwargs)
+# TODO: delete function, project is assumed opened when running interactively from RMS as a job
+# @experimental
+# def export_structural_model(project_path: str) -> ExportResult:
+#     """Simplified interface when exporting volume tables (and assosiated data) from RMS.
+
+#     Args:
+#         project: The 'magic' project variable in RMS.
+
+#     Note:
+#         This function is experimental and may change in future versions.
+#     """
+
+#     # TODO: this function only exists to open the RMS project.
+#     # Can that be done in the caller?
+#     # Not done here because of problems with sourcing both roxenvbash and fmu-dataio:
+#     # source /prog/res/roxapi/aux/roxenvbash 14.2.1
+#     # source ~/venv/fmu-dataio/bin/activate
+#     # Cannot do both lines, in either ordering, in the bash shell on TGX
+
+#     with rmsapi.Project.open(project_path, readonly=True) as project:
+#         return export_triangulations(project)
+
+
+# # TODO: delete, this is new functionality so don't need a deprecated API
+# # keep the old name for now but not log (will be removed soon as we expect close to
+# # zero usage so far)
+# def export_rms_volumetrics(*args, **kwargs) -> ExportResult:  # type: ignore
+#     """Deprecated function. Use export_inplace_volumes instead."""
+#     warnings.warn(
+#         "export_rms_volumetrics is deprecated and will be removed in a future release. "
+#         "Use export_inplace_volumes instead.",
+#         FutureWarning,
+#         stacklevel=2,
+#     )
+#     return export_inplace_volumes(*args, **kwargs)

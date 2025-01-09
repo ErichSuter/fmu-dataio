@@ -52,14 +52,14 @@ def export_structural_model_triangulations(
     # TODO: global_variables doesn't contain faults, is this a problem?
     monkeypatch.chdir(rmssetup_with_fmuconfig)
 
-    from fmu.dataio.export.rms.structural_model_triangulations import _ExportStructuralModelTriangulationsRMS
+    from fmu.dataio.export.rms.structural_model import _ExportTriangulationsRMS
 
     with mock.patch.object(
-        _ExportStructuralModelTriangulationsRMS,
+        _ExportTriangulationsRMS,
         "_get_fault_triangulation_node_set", return_value=triang_nodes
     ):
         # TODO
-        yield _ExportStructuralModelTriangulationsRMS(mock_project_variable, "Geogrid", "geogrid_vol")
+        yield _ExportTriangulationsRMS(mock_project_variable, "Geogrid", "geogrid_vol")
 
 
 @inside_rms
