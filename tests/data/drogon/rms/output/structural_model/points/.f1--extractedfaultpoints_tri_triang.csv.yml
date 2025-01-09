@@ -1,0 +1,73 @@
+$schema: https://main-fmu-schemas-prod.radix.equinor.com/schemas/0.8.0/fmu_results.json
+version: 0.8.0
+source: fmu
+class: points
+masterdata:
+  smda:
+    coordinate_system:
+      identifier: ST_WGS84_UTM37N_P32637
+      uuid: ad214d85-dac7-19da-e053-c918a4889309
+    country:
+    - identifier: Norway
+      uuid: ad214d85-8a1d-19da-e053-c918a4889309
+    discovery:
+    - short_identifier: DROGON
+      uuid: ad214d85-8a1d-19da-e053-c918a4889309
+    field:
+    - identifier: DROGON
+      uuid: 00000000-0000-0000-0000-000000000000
+    stratigraphic_column:
+      identifier: DROGON_HAS_NO_STRATCOLUMN
+      uuid: 00000000-0000-0000-0000-000000000000
+access:
+  asset:
+    name: Drogon
+  classification: internal
+  ssdl:
+    access_level: internal
+    rep_include: false
+data:
+  content: depth
+  name: F1
+  alias: []
+  tagname: ExtractedFaultPoints_tri_triang
+  stratigraphic: false
+  bbox:
+    xmin: 0.0
+    xmax: 245.0
+    ymin: 245.0
+    ymax: 0.0
+    zmin: 1.0
+    zmax: 243.0
+  format: csv
+  is_observation: false
+  is_prediction: true
+  layout: unset
+  offset: 0.0
+  spec:
+    size: 1218
+  undef_is_zero: false
+  unit: m
+  vertical_domain: depth
+  domain_reference: msl
+file:
+  absolute_path: /private/esut/drogon_20240815_10-06/resmod/ff/24.3.1/share/results/points/f1--extractedfaultpoints_tri_triang.csv
+  relative_path: share/results/points/f1--extractedfaultpoints_tri_triang.csv
+  checksum_md5: efe0a0a27904dc3219af81cdfd1282de
+display:
+  name: F1
+tracklog:
+- datetime: '2025-01-07T12:34:31.692072Z'
+  event: created
+  user:
+    id: esut
+  sysinfo:
+    fmu-dataio:
+      version: 2.7.0
+    operating_system:
+      hostname: st-lintgx0503.st.statoil.no
+      operating_system: Linux-4.18.0-553.27.1.el8_10.x86_64-x86_64-with-glibc2.28
+      release: 4.18.0-553.27.1.el8_10.x86_64
+      system: Linux
+      version: '#1 SMP Fri Oct 18 06:18:15 EDT 2024'
+_preprocessed: false

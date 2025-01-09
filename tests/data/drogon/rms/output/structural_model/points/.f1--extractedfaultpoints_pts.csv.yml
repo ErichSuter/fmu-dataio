@@ -1,0 +1,73 @@
+$schema: https://main-fmu-schemas-prod.radix.equinor.com/schemas/0.8.0/fmu_results.json
+version: 0.8.0
+source: fmu
+class: points
+masterdata:
+  smda:
+    coordinate_system:
+      identifier: ST_WGS84_UTM37N_P32637
+      uuid: ad214d85-dac7-19da-e053-c918a4889309
+    country:
+    - identifier: Norway
+      uuid: ad214d85-8a1d-19da-e053-c918a4889309
+    discovery:
+    - short_identifier: DROGON
+      uuid: ad214d85-8a1d-19da-e053-c918a4889309
+    field:
+    - identifier: DROGON
+      uuid: 00000000-0000-0000-0000-000000000000
+    stratigraphic_column:
+      identifier: DROGON_HAS_NO_STRATCOLUMN
+      uuid: 00000000-0000-0000-0000-000000000000
+access:
+  asset:
+    name: Drogon
+  classification: internal
+  ssdl:
+    access_level: internal
+    rep_include: false
+data:
+  content: depth
+  name: F1
+  alias: []
+  tagname: ExtractedFaultPoints_pts
+  stratigraphic: false
+  bbox:
+    xmin: 460645.0986328125
+    xmax: 465103.384765625
+    ymin: 5937786.012207031
+    ymax: 5932751.959350586
+    zmin: 1601.533935546875
+    zmax: 1889.8203125
+  format: csv
+  is_observation: false
+  is_prediction: true
+  layout: unset
+  offset: 0.0
+  spec:
+    size: 7419
+  undef_is_zero: false
+  unit: m
+  vertical_domain: depth
+  domain_reference: msl
+file:
+  absolute_path: /private/esut/drogon_20240815_10-06/resmod/ff/24.3.1/share/results/points/f1--extractedfaultpoints_pts.csv
+  relative_path: share/results/points/f1--extractedfaultpoints_pts.csv
+  checksum_md5: a42464212ded32c4fab002b455542457
+display:
+  name: F1
+tracklog:
+- datetime: '2025-01-07T12:34:31.573661Z'
+  event: created
+  user:
+    id: esut
+  sysinfo:
+    fmu-dataio:
+      version: 2.7.0
+    operating_system:
+      hostname: st-lintgx0503.st.statoil.no
+      operating_system: Linux-4.18.0-553.27.1.el8_10.x86_64-x86_64-with-glibc2.28
+      release: 4.18.0-553.27.1.el8_10.x86_64
+      system: Linux
+      version: '#1 SMP Fri Oct 18 06:18:15 EDT 2024'
+_preprocessed: false
