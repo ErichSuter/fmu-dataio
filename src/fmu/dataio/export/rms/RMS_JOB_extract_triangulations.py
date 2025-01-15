@@ -1,4 +1,4 @@
-# Job in RMS to extract fault surface points and triangulations.
+# Copy of job in RMS: to extract fault surface points and triangulations.
 # Not intended to be part of fmu-dataio, but kept for reference.
 
 

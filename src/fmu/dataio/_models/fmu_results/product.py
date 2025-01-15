@@ -55,6 +55,25 @@ class InplaceVolumesProduct(Product):
     """The schema identifying the format of the 'inplace_volumes' product."""
 
 
+class StructuralModelTriangulations(Product):
+    """
+    The ``product`` field contains information about which product this
+    data object represent.
+    This class contains metadata for the 'structural_model_triangulations' product.
+    """
+
+    # TODO: adapt function to handle StructuralModelTriangulations
+
+    name: Literal[enums.ProductName.structural_model_triangulations]
+    """The identifying product name for the product."""
+
+    file_schema: FileSchema = FileSchema(
+        version=InplaceVolumesSchema.VERSION,
+        url=AnyHttpUrl(InplaceVolumesSchema.url()),
+    )
+    """The schema identifying the format of the 'inplace_volumes' product."""
+
+
 class AnyProduct(RootModel):
     """
     The ``product`` field contains information about which product this data object

@@ -8,6 +8,7 @@ class ProductName(str, Enum):
     """The product name of a given data object."""
 
     inplace_volumes = "inplace_volumes"
+    structural_model_triangulations = "structural_model_triangulations"
 
 
 class Classification(str, Enum):
@@ -28,6 +29,7 @@ class AxisOrientation(IntEnum):
 class Content(str, Enum):
     """The content type of a given data object."""
 
+    # TODO: need something for structural_model_triangulations?
     depth = "depth"
     facies_thickness = "facies_thickness"
     fault_lines = "fault_lines"
@@ -80,6 +82,7 @@ class ErtSimulationMode(str, Enum):
 class FMUClass(str, Enum):
     """The class of a data object by FMU convention or standards."""
 
+    # TODO: need something for structural_model_triangulations?
     case = "case"
     realization = "realization"
     iteration = "iteration"
@@ -97,6 +100,7 @@ class FMUClass(str, Enum):
 class Layout(str, Enum):
     """The layout of a given data object."""
 
+    # TODO: need something for structural_model_triangulations?
     regular = "regular"
     unset = "unset"
     cornerpoint = "cornerpoint"
