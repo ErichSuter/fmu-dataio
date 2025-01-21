@@ -13,7 +13,7 @@ def test1():
     import rmsapi
 
     # import importlib
-    import fmu.dataio.export.rms.structural_model
+    #import fmu.dataio.export.rms.structural_model
     from fmu.dataio.export.rms.structural_model import export_triangulations
     # importlib.reload(fmu.dataio.export.rms.structural_model)
 
