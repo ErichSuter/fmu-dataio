@@ -41,10 +41,10 @@ import pyarrow as pa
 import xtgeo
 import fmu.dataio as dio
 from fmu.dataio._logging import null_logger
-from fmu.dataio._models import InplaceVolumesResult
+from fmu.dataio._models import Vertex3DResult, TrianglesResult
 from fmu.dataio._models.fmu_results import product
 from fmu.dataio._models.fmu_results.enums import Classification, ProductName
-from fmu.dataio.export import _enums
+from fmu.dataio.export import _enums_vertices3D, _enums_triangles
 from fmu.dataio.export._decorators import experimental
 from fmu.dataio.export._export_result import ExportResult, ExportResultItem
 from fmu.dataio.export.rms._conditional_rms_imports import import_rms_package
@@ -59,12 +59,8 @@ rmsapi, rmsjobs = import_rms_package()
 
 _logger: Final = null_logger(__name__)
 
-
-# TODO: use _enums.StructuralModel.VerticesColumns, _enums.StructuralModel.TrianglesColumns
-# _VolumetricColumns = _enums.InplaceVolumes.VolumetricColumns
-# _TableIndexColumns = _enums.InplaceVolumes.TableIndexColumns
-_VerticesColumns = ["X_UTME", "Y_UTMN", "Z_TVDSS"]
-_TrianglesColumns = ["X_UTME", "Y_UTMN", "Z_TVDSS"]
+_VerticesColumns = _enums_vertices3D.EnumsVertices3D.table_columns()
+_TrianglesColumns = _enums_triangles.EnumsTriangles.table_columns()
 
 # rename columns to FMU standard
 # _RENAME_COLUMNS_FROM_RMS: Final = {
@@ -97,7 +93,29 @@ class _ExportTriangulationsRMS:
 
     def __post_init__(self) -> None:
         _logger.debug("Process data, establish state prior to export.")
-        self._config = load_global_config()
+
+        print("Now in _ExportTriangulationsRMS.__post_init__()")
+        # TODO:
+        # The processing is copied from a test setup.
+        # But instead of adapting the test setup from export_volumetrics,
+        # I started with a simple script.
+        # (Will go back to the real test setup later on, after having
+        # verified that it works.)
+        # But then I don't have the test setup available.
+        # So I tried with a hack to get global_variables.yml
+        # May easily fail, e.g. if needed also later on in the processing.
+        # global variables exist here: tests/data/drogon/global_config2/global_variables.yml
+        # Assume processing is started from '/private/esut/src/fmu-dataio'
+
+        apply_config_hack = True
+        if apply_config_hack:
+            CONFIG_PATH = Path("tests/data/drogon/global_config2/global_variables.yml")
+            from fmu.dataio._utils import load_config_from_path
+            self._config = load_config_from_path(CONFIG_PATH)
+            print("global_variables hack worked")
+        else:
+            self._config = load_global_config()
+
         self._dataframes = self._export_structural_model_as_triangulations_RMS()
         _logger.debug("Process data... DONE")
 
@@ -139,12 +157,15 @@ class _ExportTriangulationsRMS:
         #         workflow="rms structural model",
         #     )
 
-        # TODO: different tagname
-        tagname = "tagname"
+        # TODO: not entirely clear what this is, but works when using the name of
+        # a specific folder
+        # tagname = "DL_depth"
+        # tagname = "faults"
+        print("TODO: OK tagname?")
+        tagname = "ExtractedFaultPoints"
         realization = 0
 
-        dataframes = [pd.DataFrame]
-
+        dataframes = []
         for fault_name in fault_names:
 
             # TODO: make function to get the data, and function to insert into df
@@ -156,7 +177,6 @@ class _ExportTriangulationsRMS:
             xtgeo_obj_vertices = xtgeo.points_from_roxar(
                 project = self.project,
                 name = fault_name,
-                # TODO: error: Cannot access category='tagname' in faults
                 category = tagname,
                 stype = "faults")
 
@@ -167,7 +187,6 @@ class _ExportTriangulationsRMS:
                 )
             # TODO: is the xtgeo object needed at all?
             dataframes.append(xtgeo_obj_vertices.dataframe)
-
 
             xtgeo_obj_triangles = xtgeo.points_from_roxar(
                 project = self.project,
@@ -182,7 +201,10 @@ class _ExportTriangulationsRMS:
                 )
             # TODO: is the xtgeo object needed at all?
             dataframes.append(xtgeo_obj_triangles.dataframe)
-        
+
+            print("Finished retrieving the triangulations")
+
+
         return dataframes
 
 
@@ -192,12 +214,16 @@ class _ExportTriangulationsRMS:
 
         # Probably export the Point dataframes or Point class objects:
         # TODO: Check how the Point class is exported in fmu-dataio
-        # May have to repeat for each dataframe?
+        # TODO: Have to repeat for each dataframe
+
+        # TODO: this function to export a triangulation with two dataframes
+        # TODO: a function on top of that to export triangulations for each fault (and horizon)
 
         edata = dio.ExportData(
             config=self._config,
             # TODO: content is checked agains a white-list for validation!
-            content="Surfaces",
+            # TODO: whitelist must be enhanced
+            content="parameters",
             unit="m3" if get_rms_project_units(self.project) == "metric" else "ft3",
             vertical_domain="depth",
             domain_reference="msl",
@@ -208,17 +234,30 @@ class _ExportTriangulationsRMS:
             # name=self.grid_name,
             rep_include=False,
             # TODO: fix next line
-            table_index=_enums.InplaceVolumes.index_columns(),
+            table_index=_enums_triangles.EnumsStructModelTriangulations.vertex_columns(),
         )
 
+        print("In _export_triangs() - 2")
+
+        print("Num dataframes: ", len(self._dataframes))
+        single_df = self._dataframes[0]
+        print(single_df)
+
+
+
         # TODO: handle more tables
-        vertices_table = pa.Table.from_pandas(self._dataframes[0])
+        # vertices_table = pa.Table.from_pandas(self._dataframes[0])
+        vertices_table = pa.Table.from_pandas(single_df)
+
+        print("In _export_triangs() - 3")
 
         # export the volume table with product info in the metadata
         absolute_export_path = edata._export_with_product(
             vertices_table,
             product=self._product,
         )
+
+        print("In _export_triangs() - 4")
 
         _logger.debug("Structural model surfaces result to: %s", absolute_export_path)
         return ExportResult(
@@ -231,6 +270,10 @@ class _ExportTriangulationsRMS:
 
     def export(self) -> ExportResult:
         """Export the triangulations."""
+
+        print("Now in export(self)")
+
+
         return self._export_triangs()
 
 
@@ -249,12 +292,11 @@ def export_triangulations(project: Any) -> ExportResult:
         This function is experimental and may change in future versions.
     """
 
-    print("Now in export_triangulations()")
-
-
     print(project.wells)
 
     check_rmsapi_version(minimum_version="1.7")
+
+    print("Now in export_triangulations()")
 
     return _ExportTriangulationsRMS(project).export()
 

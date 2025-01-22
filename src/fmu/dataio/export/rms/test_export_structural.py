@@ -9,7 +9,6 @@
 
 
 def test1():
-    print("in test1() - again")
     import rmsapi
 
     # import importlib
@@ -20,12 +19,7 @@ def test1():
     project_path = "/private/esut/drogon_20240815_10-06/resmod/ff/24.3.1/rms/model/drogon.rms14.2.1"
 
     try:
-        print("111")
         with rmsapi.Project.open(project_path, readonly=True) as project:
-            print("222")
-            for well in project.wells:
-                print(well)
-            print("333")
             export_triangulations(project)
     except Exception as e:
         print("Error: %s" % e)

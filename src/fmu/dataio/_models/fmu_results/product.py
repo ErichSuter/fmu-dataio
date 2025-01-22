@@ -11,6 +11,8 @@ from pydantic import (
 from typing_extensions import Annotated
 
 from fmu.dataio._models.products import InplaceVolumesSchema
+from fmu.dataio._models.products import Vertices3DSchema
+from fmu.dataio._models.products import TrianglesSchema
 
 from . import enums
 
@@ -55,23 +57,38 @@ class InplaceVolumesProduct(Product):
     """The schema identifying the format of the 'inplace_volumes' product."""
 
 
-class StructuralModelTriangulations(Product):
+class Vertices3DProduct(Product):
     """
     The ``product`` field contains information about which product this
     data object represent.
-    This class contains metadata for the 'structural_model_triangulations' product.
+    This class contains metadata for the 'vertices3D' product.
     """
 
-    # TODO: adapt function to handle StructuralModelTriangulations
-
-    name: Literal[enums.ProductName.structural_model_triangulations]
+    name: Literal[enums.ProductName.vertices3D]
     """The identifying product name for the product."""
 
     file_schema: FileSchema = FileSchema(
-        version=InplaceVolumesSchema.VERSION,
-        url=AnyHttpUrl(InplaceVolumesSchema.url()),
+        version=Vertices3DSchema.VERSION,
+        url=AnyHttpUrl(Vertices3DSchema.url()),
     )
-    """The schema identifying the format of the 'inplace_volumes' product."""
+    """The schema identifying the format of the 'vertices3D' product."""
+
+
+class TrianglesProduct(Product):
+    """
+    The ``product`` field contains information about which product this
+    data object represent.
+    This class contains metadata for the 'triangles' product.
+    """
+
+    name: Literal[enums.ProductName.triangles]
+    """The identifying product name for the product."""
+
+    file_schema: FileSchema = FileSchema(
+        version=TrianglesSchema.VERSION,
+        url=AnyHttpUrl(TrianglesSchema.url()),
+    )
+    """The schema identifying the format of the 'triangles' product."""
 
 
 class AnyProduct(RootModel):
