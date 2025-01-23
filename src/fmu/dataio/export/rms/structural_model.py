@@ -41,7 +41,7 @@ import pyarrow as pa
 import xtgeo
 import fmu.dataio as dio
 from fmu.dataio._logging import null_logger
-from fmu.dataio._models import Vertex3DResult, TrianglesResult
+from fmu.dataio._models import Vertices3DResult, TrianglesResult
 from fmu.dataio._models.fmu_results import product
 from fmu.dataio._models.fmu_results.enums import Classification, ProductName
 from fmu.dataio.export import _enums_vertices3D, _enums_triangles
@@ -119,10 +119,20 @@ class _ExportTriangulationsRMS:
         self._dataframes = self._export_structural_model_as_triangulations_RMS()
         _logger.debug("Process data... DONE")
 
+    # @ecs: here i am
+    # TODO: requires two products: vertices3D + triangles ...?
+    # Q: is a product the same as a file? Or could it be a group of files (size = 2)?
+    # Here it is a requirement that this object (self) returns a single, unique product
+    # So may have to split into two files producing a product each?
+    #
+    # TODO: If python class Points is used, it can be instantiated with column names
+    # to avoid using "X_UTME" etc. (According to c'tor src/xtgeo/xyz/points.py::Points())
+    # 
+    # TODO: rename Vertex3D/Vertices3D to Points to align with xtgeo
     @property
-    def _product(self) -> product.InplaceVolumesProduct:
+    def _product(self) -> product.Vertices3DProduct:
         """Product type for the exported data."""
-        return product.InplaceVolumesProduct(name=ProductName.inplace_volumes)
+        return product.Vertices3DProduct(name=ProductName.vertices3D)
 
     @property
     def _classification(self) -> Classification:
@@ -185,8 +195,10 @@ class _ExportTriangulationsRMS:
                 triang.get_vertices(),
                 columns=_VerticesColumns
                 )
-            # TODO: is the xtgeo object needed at all?
             dataframes.append(xtgeo_obj_vertices.dataframe)
+
+            # TODO: find out if I can set the column names to something different than _VerticesColumns
+            print(xtgeo_obj_vertices)
 
             xtgeo_obj_triangles = xtgeo.points_from_roxar(
                 project = self.project,
@@ -199,7 +211,6 @@ class _ExportTriangulationsRMS:
                 triang.get_triangles(),
                 columns=_TrianglesColumns
                 )
-            # TODO: is the xtgeo object needed at all?
             dataframes.append(xtgeo_obj_triangles.dataframe)
 
             print("Finished retrieving the triangulations")
