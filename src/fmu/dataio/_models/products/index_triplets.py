@@ -16,7 +16,7 @@ if TYPE_CHECKING:
 # Optimally, triangulated surfaces should be exported in a standard format (e.g. TSURF)
 # For Points files, ["X_UTME", "Y_UTMN", "Z_TVDSS"] are required as column names
 
-class TrianglesResultRow(BaseModel):
+class IndexTripletsResultRow(BaseModel):
     """
     Represents a row in a static export of the triangles in a triangulation.
 
@@ -29,7 +29,7 @@ class TrianglesResultRow(BaseModel):
     SECOND: int = Field(ge=0)
     THIRD: int = Field(ge=0)
 
-class TrianglesResult(RootModel):
+class IndexTripletsResult(RootModel):
     """
     Represents the resultant static triangles csv file, which is naturally a
     list of rows.
@@ -38,16 +38,16 @@ class TrianglesResult(RootModel):
     equivalent format to validate it against the schema.
     """
 
-    root: List[TrianglesResultRow]
+    root: List[IndexTripletsResultRow]
 
 
-class TrianglesSchema(SchemaBase):
+class IndexTripletsSchema(SchemaBase):
     VERSION: str = "0.1.0"
-    FILENAME: str = "triangles.json"
+    FILENAME: str = "index_triplets.json"
     PATH: Path = FmuSchemas.PATH / "file_formats" / VERSION / FILENAME
 
     @classmethod
     def dump(cls) -> dict[str, Any]:
-        return TrianglesResult.model_json_schema(
+        return IndexTripletsResult.model_json_schema(
             schema_generator=cls.default_generator()
         )

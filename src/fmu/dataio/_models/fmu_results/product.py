@@ -12,7 +12,7 @@ from typing_extensions import Annotated
 
 from fmu.dataio._models.products import InplaceVolumesSchema
 from fmu.dataio._models.products import Vertices3DSchema
-from fmu.dataio._models.products import TrianglesSchema
+from fmu.dataio._models.products import IndexTripletsSchema
 
 from . import enums
 
@@ -74,19 +74,19 @@ class Vertices3DProduct(Product):
     """The schema identifying the format of the 'vertices3D' product."""
 
 
-class TrianglesProduct(Product):
+class IndexTripletsProduct(Product):
     """
     The ``product`` field contains information about which product this
     data object represent.
     This class contains metadata for the 'triangles' product.
     """
 
-    name: Literal[enums.ProductName.triangles]
+    name: Literal[enums.ProductName.index_triplets]
     """The identifying product name for the product."""
 
     file_schema: FileSchema = FileSchema(
-        version=TrianglesSchema.VERSION,
-        url=AnyHttpUrl(TrianglesSchema.url()),
+        version=IndexTripletsSchema.VERSION,
+        url=AnyHttpUrl(IndexTripletsSchema.url()),
     )
     """The schema identifying the format of the 'triangles' product."""
 
@@ -103,5 +103,7 @@ class AnyProduct(RootModel):
 
     root: Annotated[
         Union[InplaceVolumesProduct,],
+        Union[Vertices3DProduct,],
+        Union[IndexTripletsProduct,],
         Field(discriminator="name"),
     ]

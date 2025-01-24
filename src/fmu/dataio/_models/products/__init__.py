@@ -1,12 +1,12 @@
 from .inplace_volumes import InplaceVolumesResult, InplaceVolumesSchema
 from .vertices3D import Vertices3DResult, Vertices3DSchema
-from .triangles import TrianglesResult, TrianglesSchema
+from .index_triplets import IndexTripletsResult, IndexTripletsSchema
 
 __all__ = [
     "InplaceVolumesResult",
     "InplaceVolumesSchema",
     "Vertices3DResult",
     "Vertices3DSchema",
-    "TrianglesResult",
-    "TrianglesSchema",
+    "IndexTripletsResult",
+    "IndexTripletsSchema",
 ]

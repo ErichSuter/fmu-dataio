@@ -41,10 +41,10 @@ import pyarrow as pa
 import xtgeo
 import fmu.dataio as dio
 from fmu.dataio._logging import null_logger
-from fmu.dataio._models import Vertices3DResult, TrianglesResult
+from fmu.dataio._models import Vertices3DResult, IndexTripletsResult
 from fmu.dataio._models.fmu_results import product
 from fmu.dataio._models.fmu_results.enums import Classification, ProductName
-from fmu.dataio.export import _enums_vertices3D, _enums_triangles
+from fmu.dataio.export import _enums_index_triplets, _enums_vertices3D
 from fmu.dataio.export._decorators import experimental
 from fmu.dataio.export._export_result import ExportResult, ExportResultItem
 from fmu.dataio.export.rms._conditional_rms_imports import import_rms_package
@@ -60,7 +60,7 @@ rmsapi, rmsjobs = import_rms_package()
 _logger: Final = null_logger(__name__)
 
 _VerticesColumns = _enums_vertices3D.EnumsVertices3D.table_columns()
-_TrianglesColumns = _enums_triangles.EnumsTriangles.table_columns()
+_IndexTripletsColumns = _enums_index_triplets.EnumsIndexTriplets.table_columns()
 
 # rename columns to FMU standard
 # _RENAME_COLUMNS_FROM_RMS: Final = {
@@ -119,16 +119,7 @@ class _ExportTriangulationsRMS:
         self._dataframes = self._export_structural_model_as_triangulations_RMS()
         _logger.debug("Process data... DONE")
 
-    # @ecs: here i am
-    # TODO: requires two products: vertices3D + triangles ...?
-    # Q: is a product the same as a file? Or could it be a group of files (size = 2)?
-    # Here it is a requirement that this object (self) returns a single, unique product
-    # So may have to split into two files producing a product each?
-    #
-    # TODO: If python class Points is used, it can be instantiated with column names
-    # to avoid using "X_UTME" etc. (According to c'tor src/xtgeo/xyz/points.py::Points())
-    # 
-    # TODO: rename Vertex3D/Vertices3D to Points to align with xtgeo
+    # @ecs: here i am: see Notes
     @property
     def _product(self) -> product.Vertices3DProduct:
         """Product type for the exported data."""
@@ -209,7 +200,7 @@ class _ExportTriangulationsRMS:
             # Column names matter
             xtgeo_obj_triangles.dataframe = pd.DataFrame(
                 triang.get_triangles(),
-                columns=_TrianglesColumns
+                columns=_IndexTripletsColumns
                 )
             dataframes.append(xtgeo_obj_triangles.dataframe)
 
@@ -244,8 +235,7 @@ class _ExportTriangulationsRMS:
             name="Name of structural model",
             # name=self.grid_name,
             rep_include=False,
-            # TODO: fix next line
-            table_index=_enums_triangles.EnumsStructModelTriangulations.vertex_columns(),
+            table_index=_enums_vertices3D.EnumsVertices3D.table_columns(),
         )
 
         print("In _export_triangs() - 2")
@@ -261,6 +251,11 @@ class _ExportTriangulationsRMS:
         vertices_table = pa.Table.from_pandas(single_df)
 
         print("In _export_triangs() - 3")
+
+        print(self._product)
+        
+        # Error in next line: the schema doesn't exists on
+        # url=Url('https://main-fmu-schemas-prod.radix.equinor.com/schemas/file_formats/0.1.0/vertices3D.json'))
 
         # export the volume table with product info in the metadata
         absolute_export_path = edata._export_with_product(

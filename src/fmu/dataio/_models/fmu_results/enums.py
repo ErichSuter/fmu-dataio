@@ -9,7 +9,7 @@ class ProductName(str, Enum):
 
     inplace_volumes = "inplace_volumes"
     vertices3D = "vertices3D"
-    triangles = "triangles"
+    index_triplets = "index_triplets"
 
 
 class Classification(str, Enum):

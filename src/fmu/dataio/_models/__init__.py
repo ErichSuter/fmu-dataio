@@ -2,8 +2,8 @@ from .fmu_results import FmuResults, FmuResultsSchema
 from .products import (
     InplaceVolumesResult,
     InplaceVolumesSchema,
-    TrianglesResult,
-    TrianglesSchema,
+    IndexTripletsResult,
+    IndexTripletsSchema,
     Vertices3DResult,
     Vertices3DSchema,
 )
@@ -15,8 +15,8 @@ __all__ = [
     "InplaceVolumesSchema",
     "Vertices3DResult",
     "Vertices3DSchema",
-    "TrianglesResult",
-    "TrianglesSchema",
+    "IndexTripletsResult",
+    "IndexTripletsSchema",
 ]
 
-schemas = [FmuResultsSchema, InplaceVolumesSchema, Vertices3DSchema, TrianglesSchema]
+schemas = [FmuResultsSchema, InplaceVolumesSchema, Vertices3DSchema, IndexTripletsSchema]
